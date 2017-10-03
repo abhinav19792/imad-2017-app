@@ -74,6 +74,8 @@ submit.onclick = function() {
                 alert('Username/Password is incorrect! Please try again');
             } else if (request.status === 500) {
                 alert('Something went wrong on the server');
+            } else if (request.status === 502) {
+                alert('Bad Gateway!');
             }
         }
     };

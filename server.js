@@ -106,15 +106,13 @@ app.post('/login', function (req, res) {
     var username = req.body.username;
     var password = req.body.password;
    
-    pool.query('SELECT * FROM "user" WHERE username = $1', [username, ], function(err, result) {
+    pool.query('SELECT * FROM "user" WHERE username = $1', [username], function(err, result) {
        if (err) {
            res.status(500).send(err.toString());
-       }
-       else {
+       } else {
            if (result.rows.length === 0) {
-               res.send(403).send('username/paswword is invalid');
-           }
-           else {
+               res.status(403).send('username/paswword is invalid');
+           } else {
                 // Match Password
                 var dbString = result.rows[0].password;
                 var salt = dbString.split('$')[2];

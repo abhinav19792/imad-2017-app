@@ -16,6 +16,10 @@ var config = {
 var app = express();
 app.use(morgan('combined'));
 app.use(bodyParser.json());
+app.user(session ({
+    secret: 'someRandomSecretValue',
+    cookie: { maxAge: 1000 * 60 * 60 * 24 * 30}
+}));
 
 function createTemplate (data) {
     
@@ -115,6 +119,12 @@ app.post('/login', function (req, res) {
                 var salt = dbString.split('$')[2];
                 var hashedPassword = hash(password, salt); // Creating a hash based on the password submitted and the original salt
                 if (hashedPassword === dbstring) {
+                    // Set the session
+                    req.session.auth = {userId: result.rows[0].id};
+                    
+                    // Set a cookie with a session ID
+                    // internally, on the server side, it maps the session id to an object.
+                    // {auth: {userid}}
                     res.send('Correct credentials!');
                 }
                 else {
@@ -123,6 +133,14 @@ app.post('/login', function (req, res) {
            }
        }       
    });
+});
+
+app.get('/check-login', function (req, res) {
+   if (req.session && req.session.auth && req.session.auth.userId) {
+       res.send('You are logged in: ' + req.session.auth.userId.toString())
+   } else {
+       res.send ('You are not logged in!');
+   } 
 });
 
 var pool = new Pool(config);
